@@ -1,0 +1,74 @@
+\begin{figure}[H]
+\centering
+
+\begin{minipage}{0.88\textwidth}
+\raggedright
+
+\textbf{Sign-extension insertion}
+
+\medskip
+
+\noindent
+\begin{minipage}[t]{0.43\linewidth}
+\textnormal{(a) Before insertion}
+
+\begin{lstlisting}[
+  basicstyle=\ttfamily\normalsize,
+  columns=fullflexible,
+  keepspaces=true,
+  aboveskip=0.3em,
+  belowskip=0pt,
+  xleftmargin=0pt,
+  xrightmargin=0pt
+]
+hot_BB:
+1: i = or   i64 j, k
+2: x = add  i64 v, i
+3: y = sub  i64 x, 255
+4: s = sext i32 y to i64
+
+cold_BB:
+5: y = mul  i64 s, 155
+6: z = or   i64 y, 400
+\end{lstlisting}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.53\linewidth}
+\textnormal{(b) After insertion}
+
+\begin{lstlisting}[
+  basicstyle=\ttfamily\normalsize,
+  columns=fullflexible,
+  keepspaces=true,
+  aboveskip=0.3em,
+  belowskip=0pt,
+  xleftmargin=0pt,
+  xrightmargin=0pt
+]
+hot_BB:
+1: i     = or    i64 j, k
+2: x     = add   i64 v, i
+3: y     = sub   i64 x, 255
+4: s     = sext  i32 y to i64
+
+cold_BB:
+5: s.t   = trunc i64 y to i32
+6: s.t.s = sext  i32 s.t to i64
+7: y     = mul   i64 s.t.s, 155
+8: z     = or    i64 y, 400
+\end{lstlisting}
+\end{minipage}
+
+\end{minipage}
+
+\captionsetup{
+  font=small,
+  justification=centering,
+  singlelinecheck=false,
+  skip=0pt
+}
+\vspace{1.2em}
+\caption{Example of sign-extension insertion.}
+\label{fig:figure4}
+
+\end{figure}

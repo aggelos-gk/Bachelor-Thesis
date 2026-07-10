@@ -1,0 +1,32 @@
+\par\vspace{1.2em}
+
+\begin{center}
+{\normalfont\normalsize
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Benchmark & Original & Optimized & Pct Change \\
+\midrule
+sqlite3 & 818506 & 818618 & +0.013\% \\
+ALAC-decode & 723854 & 723854 & +0.00\% \\
+SPASS & 622074 & 620326 & -0.28\% \\
+ldecod & 595796 & 595944 & +0.024\% \\
+lencod & 948404 & 948676 & +0.028\% \\
+oggenc & 511426 & 511390 & -0.007\% \\
+lua & 806083 & 806095 & +0.0014\% \\
+kimwitu++ & 2394819 & 2394783 & -0.015\% \\
+\bottomrule
+\end{tabular}
+}
+\end{center}
+
+\vspace{0.12em}
+
+\refstepcounter{figure}\label{fig:figure11}
+
+\begin{center}
+\small\textbf{Figure~\thefigure.} Code size results for llvm-test-suite at O3.
+\end{center}
+
+\par\vspace{1.2em}

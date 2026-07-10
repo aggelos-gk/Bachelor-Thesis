@@ -1,0 +1,69 @@
+\noindent Our implementation follows the structure of Kawahito et al. and adapts the algorithm to LLVM IR for RV64 as we metioned in the previous section. The optimization is performed in several stages, starting from the preparation of the IR and ending with the elimination of redundant extension instructions. The algorithm consists of four main phases:
+
+\begin{itemize}
+\item[--] translating the program's intermediate representation to a 64-bit
+  architecture by widening instructions to 64 bits;
+\item[--] inserting extra sign extensions before every instruction that requires
+  a sign-extended operand;
+\item[--] determining the elimination order, starting from the most frequently
+  executed regions;
+\item[--] eliminating redundant sign extensions using UD/DU chains.
+\end{itemize}
+The following sections describe each phase of the implementation in more detail.
+
+\subsection{Widening}
+
+The first phase translates the intermediate representation of the program from a 32-bit architecture form to a 64-bit architecture form by widening 32-bit (or narrower) instructions to 64 bits. To preserve the correct semantics of each instruction, truncation and sign-extension operations are inserted when necessary. This is required because a widened 64-bit instruction does not always produce the same result as its 32-bit original value. By truncating the result back to 32 bits and then sign-extending it to 64 bits, the original 32-bit behavior is preserved while allowing the value to remain in the widened representation.
+
+This transformation is essential for sign-extension elimination. In order to eliminate a sign-extension instruction, a widened version of its source value must be available so that its users can be rewritten. Furthermore, the widened representation is required by the order-determination phase, which is described in a later section.
+
+\input{figures/figure3}
+
+\subsection{Sign Extension Insertion}
+
+In this phase, we insert sign-extension instructions at use points to improve sign-extension elimination in frequently executed regions such as loops. After the original sign-extension instruction, we insert a truncation and a new sign extension before the first user in the same basic block. This additional sign-extension instruction acts as a helper, allowing the extension to be moved closer to its uses and increasing the chances of eliminating sign extensions that appear inside frequently executed basic blocks.
+
+\input{figures/figure4}
+\input{figures/figure5}
+
+Figures 4 and 5 show how sign-extension insertion works. In this example, the users of the \texttt{sext} instruction ((\textbf{4a}) - \textbf{line 4}) are located in a less frequently executed (\textbf{colder}) basic block. For this reason, an additional \texttt{sext} is inserted in the cold block ((\textbf{4b}) - \textbf{line 6}), while the original value can be used in the most frequently execute (\textbf{hot}) path. As a result, the most frequently executed \texttt{sext} is removed from the hot basic block and moved to a colder one. Although the sign extension cannot be completely eliminated in this case, the optimization reduces its cost by keeping it only in the less frequently executed code.
+
+\subsection{Order Determination for Elimination}
+
+Sign extensions should be eliminated starting from the most frequently executed regions. Otherwise, eliminating sign extensions in less frequently executed basic blocks first may reduce the opportunities for eliminating sign extensions effectively.
+
+In the example shown in Figure 4(b), if we eliminate first the \texttt{sext} instruction of the less frequently basic block (\texttt{cold\_BB}), the \texttt{sext} of the most frequenty executed basic block (\texttt{hot\_BB}) will still be required. In this case, even though one sign-extension instruction is eliminated, the optimization does not achieve the maximum benefit because the remaining \texttt{sext} is executed more frequently.
+
+\input{figures/figure6}
+
+Another example is shown in Figure 6. There are two \texttt{sext} candidates for elimination(\textbf{lines 4 - 5}). Although only one of them can be eliminated, \textbf{Optimized Result 1} is clearly better than \textbf{Optimized Result 2}.
+
+To achieve this, we sort the basic blocks from the most frequently executed to the least frequently executed, allowing us to eliminate sign-extension instructions in the correct order and prioritize the hottest regions.
+
+\subsection{Sign Extension Elimination}
+
+Sign extensions are analyzed and eliminated in order of execution frequency, starting from the most frequently executed regions, as described in Section 2.3.
+
+Our elimination approach, based on the algorithm proposed by Kawahito et al., consists of two main algorithms: \texttt{EliminateOneExtend} and \texttt{AnalyzeUSE}.
+
+\input{figures/figure7}
+\input{figures/figure8}
+
+The \texttt{EliminateOneExtend} function processes every \texttt{sext} and \texttt{zext} instruction in the program, including extensions narrower than 32 bits. For each extension instruction, it runs the \texttt{AnalyzeUSE} algorithm on all instructions that use the extension (DU-chain). If \texttt{AnalyzeUSE} returns \texttt{TRUE}, the extension is considered necessary for the instruction I and is not eliminated.
+
+The \texttt{AnalyzeUSE} algorithm analyzes all users of the instruction that is being examined and handles two different cases. In the first case, we check if an instruction \texttt{I} does not require sign or zero extension information from its source operand. In this case, the algorithm returns \texttt{FALSE}, which means that this use path does not require the extension instruction that we are analyzing. In the second case, the algorithm cannot tell whether the source operand requires sign or zero extension. Therefore, it continues the analysis by running \texttt{AnalyzeUSE} again for all users of instruction \texttt{I} until it finds one (or not) in the path.
+
+Instructions that can be handled by the second case are instructions where the higher bits do not affect the lower bits, such as \texttt{add}, \texttt{sub}, \texttt{and}, \texttt{or}, \texttt{xor}, \texttt{phi}, and \texttt{shl}. For these instructions, if the higher bits of their operands are not required, their behavior on the lower bits remains unchanged.
+
+The first case includes instructions that can provide information about the higher bits of a value. Examples are instructions \texttt{'trunc'}, \texttt{'and'} with a positive constant operand, and \texttt{'or'} with an operand whose higher bits and sign bit are set to 1. Using this information, the algorithm can conclude that the higher bits are not needed. As a result, the extension instruction being analyzed is not required and can be eliminated because none of the instructions in its use path use the higher bits.
+
+\input{figures/figure9}
+
+In Figure 9, we can see two different elimination cases. In \textbf{After Elimination (a)}, the \texttt{sext} instruction cannot be eliminated because its use path contains a \texttt{mul} instruction, where the higher bits may affect the result, even if the remaining use paths eventually reach \texttt{and}/\texttt{or} masks(case 1). Therefore, \texttt{AnalyzeUSE} stops the analysis and keeps the extension. In \textbf{After Elimination (b)}, the \texttt{sext} instruction follows a safe use path and can be eliminated. The \texttt{and} instruction with the positive constant value 255 guarantees that the higher bits are not needed, allowing the extension to be removed. Similarly, an \texttt{or} instruction with a negative constant operand, such as -55, guarantees that the higher bits are already set to the required sign-extension pattern and therefore do not require the original extension instruction.
+
+
+\subsection{Design}
+
+The implementation consists of two LLVM IR function passes~\cite{llvm-project,llvm-writing-pass}. The first pass includes the widening and sign-extension insertion phases described in Sections 2.1 and 2.2. We first identify all paths that contain \texttt{sext} and \texttt{zext} instructions. Then we promote the relevant instructions to 64 bits and insert the required \texttt{trunc} and \texttt{sext} instructions to preserve the original program semantics. After widening, we perform sign-extension insertion as described in the previous section. If the users of an extension instruction are located in a different basic block, we insert an additional \texttt{sext} or \texttt{zext} instruction at the use point. This allows the extension to be moved between basic blocks and increases the opportunities for elimination in frequently executed regions.
+
+The second pass contains the remaining phases of the optimization. First, we sort all basic blocks according to their execution frequency, from the most frequently executed to the least frequently executed. Then we collect all \texttt{sext} and \texttt{zext} instructions into a list and run the \texttt{EliminateOneExtend} algorithm for each extension instruction in that order. This allows us to eliminate redundant extensions starting from the hottest regions of the program. Although we prioritize the elimination of \texttt{zext} instructions over \texttt{sext} instructions, because RISC-V sign extensions are often free as discussed in Section 1, the algorithm is able to eliminate both redundant \texttt{zext} and \texttt{sext} instructions.

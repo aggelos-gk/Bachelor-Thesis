@@ -1,0 +1,39 @@
+\begin{figure}[H]
+\centering
+\begin{minipage}{0.64\textwidth}
+
+\textbf{(b) Optimized result}\\[-0.2em]
+\textbf{    with insertion}\\[0.05em]
+
+\begin{lstlisting}[
+  basicstyle=\ttfamily\normalsize,
+  aboveskip=0pt,
+  belowskip=0pt,
+  columns=fullflexible,
+  keepspaces=true
+]
+1: i     = or    i64 j, k
+2: x     = add   i64 v, i
+3: y     = sub   i64 x, 255
+
+cold_BB:
+4: s.t.s = sext  i64 y to i64
+5: y     = mul   i64 s.t.s, 155
+6: z     = or    i64 y, 400
+\end{lstlisting}
+
+
+\captionsetup{
+  font=small,
+  justification=centering,
+  singlelinecheck=false,
+  skip=0pt
+}
+\vspace{1.2em}
+
+\caption{Optimized result with sign-extension insertion.}
+\label{fig:figure5}
+
+\end{minipage}
+
+\end{figure}

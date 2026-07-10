@@ -1,0 +1,32 @@
+\par\vspace{1.2em}
+
+\begin{center}
+{\normalfont\normalsize
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Benchmark & Original & Optimized & Pct Change \\
+\midrule
+sqlite3      & 1191072934 & 1192664153 & +0.13\% \\
+ALAC-decode  & 112174248  & 112174397  & +0.0001\% \\
+SPASS        & 2995196    & 2993580    & -0.054\% \\
+ldecod       & 1448596    & 1448624    & +0.0019\% \\
+lencod       & 1778874    & 1779320    & +0.025\% \\
+oggenc       & 3367611    & 3367749    & +0.0041\% \\
+lua          & 49293168   & 49293252   & +0.0002\% \\
+kimwitu++    & 88034614   & 87982278   & -0.059\% \\
+\bottomrule
+\end{tabular}
+}
+\end{center}
+
+\vspace{0.12em}
+
+\refstepcounter{figure}\label{fig:figure12}
+
+\begin{center}
+\small\textbf{Figure~\thefigure.} Dynamic instruction counts for llvm-test-suite at Oz.
+\end{center}
+
+\par\vspace{1.2em}

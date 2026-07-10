@@ -1,0 +1,41 @@
+\par\vspace{1.2em}
+
+\begin{center}
+\begin{minipage}{0.52\textwidth}
+
+\begin{lstlisting}[
+basicstyle=\normalfont\fontsize{9.5pt}{11pt}\selectfont,
+aboveskip=0pt,
+belowskip=0pt,
+columns=fullflexible,
+keepspaces=true,
+breaklines=false
+]
+1: EliminateOneExtend(EXT) {
+2:   initialize flags for all instructions;
+3:   required = FALSE;
+4:
+5:   /* use DU-chain */
+6:   for (I in all instructions that use
+7:        the destination operand of EXT) {
+8:     required = AnalyzeUSE(EXT, I, TRUE);
+9:     if (required) break;
+10:  }
+11:
+12:  if (!required)
+13:    eliminate EXT;
+14: }
+\end{lstlisting}
+
+\end{minipage}
+\end{center}
+
+\vspace{0.8em}
+
+\refstepcounter{figure}\label{fig:figure7}
+
+\begin{center}
+\small\textbf{Figure~\thefigure.} The EliminateOneExtend algorithm.
+\end{center}
+
+\par\vspace{1.2em}

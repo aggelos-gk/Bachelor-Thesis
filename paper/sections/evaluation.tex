@@ -1,0 +1,33 @@
+
+For the evaluation of our approach, we use benchmarks from the LLVM Test suite and the MiBench suite. The metrics considered are code size and dynamic instruction count for the O3 and Oz optimization levels targeting the RISC-V RV64 architecture. We mainly focus on the O3 optimization level, since it applies aggressive optimizations with the goal of improving execution performance and is therefore the most relevant setting for evaluating our approach. The Oz results are also included to provide a comparison with an optimization level that focuses on reducing code size.
+
+Initially, all benchmark programs are compiled for the RV64 target and the generated code size is measured. Then, for each benchmark, we collect the dynamic instruction count using Spike~\cite{spike-chipyard,spike-github}, the official RISC-V ISA simulator. The programs are executed on Spike together with the Proxy Kernel (pk)~\cite{riscv-pk-github}, which provides a simple runtime environment and handles the system calls required by the benchmarks. The dynamic instruction count is used to evaluate the effect of our approach on the executed code and to compare it against the baseline compilation.
+
+
+\input{figures/figure10}
+\input{figures/figure11}
+\input{figures/figure12}
+\input{figures/figure13}
+
+The results for the LLVM Test Suite show that our transformation has a small impact on code size, while some changes can also be observed in the dynamic instruction counts.
+
+Looking at the O3 results first, the code size remains very close to the original version for all benchmarks. The changes are generally small, with SPASS showing the largest reduction (-0.28\%). For the remaining benchmarks, the differences are very close to zero. Overall, the transformation has a very limited impact on code size.
+
+The dynamic instruction counts show a different picture. While some benchmarks remain almost unchanged, SPASS, ldecod and lencod show reductions in the number of executed instructions, with SPASS achieving a reduction of more than 1.1\%. Across all benchmarks, the average reduction is approximately 0.22\%. One reason for this is that some extension operations are moved away from frequently executed paths and into regions that are executed less often. Because of this, fewer extension-related instructions are executed at runtime, which helps reduce the overall dynamic instruction count.
+
+For Oz, the changes remain small overall. Several benchmarks show slight reductions in code size, which is in line with the goal of Oz optimizations. On the other hand, the dynamic instruction counts remain very close to the original version, with only minor changes across the benchmarks. As a result, the impact of our transformation is less noticeable under Oz than under O3.
+
+\input{figures/figure14}
+\input{figures/figure15}
+\input{figures/figure16}
+\input{figures/figure17}
+
+The MiBench results show a similar behavior to the one observed in the LLVM Test Suite. The impact of our transformation on code size remains small, while the dynamic instruction count results provide some additional insight into its effect on the generated code.
+
+For the O3 setting, code size remains very close to the original version for all benchmarks. The largest increase is observed in madplay (+0.039\%), while toast shows a small reduction (-0.0029\%). The remaining benchmarks are practically unchanged. Overall, the differences in code size are very small.
+
+The dynamic instruction counts show a similar pattern. Most benchmarks remain almost unchanged, while madplay shows the largest reduction, reaching approximately 0.69\%. This is particularly interesting because the same benchmark shows a very small increase in code size. This highlights one of the main ideas behind our implementation: a small change in code size does not necessarily translate to more instructions being executed at runtime. Across all benchmarks, the average reduction in dynamic instruction count is around 0.14\%.
+
+For the Oz setting, the changes remain small for both metrics. The code size results stay very close to the original version, with only minor increases or decreases across the benchmarks. This is expected, because as mentioned earlier, Oz primarily focuses on reducing the size of the generated code.
+
+The dynamic instruction counts also remain close to the baseline for most benchmarks. The only noticeable change is observed in madplay, which shows a reduction of approximately 0.37\%, while the remaining benchmarks are almost unchanged. Overall, the impact of our transformation under Oz is smaller than in O3, suggesting that the optimizations performed by Oz leave fewer opportunities for our approach to affect the final code.

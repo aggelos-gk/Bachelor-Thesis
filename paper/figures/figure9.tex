@@ -1,0 +1,118 @@
+\par\vspace{1.2em}
+\begin{center}
+\hspace*{0.8cm}
+\begin{minipage}{0.90\textwidth}
+
+%==================== TOP ROW ====================
+
+\begin{minipage}[t]{0.46\linewidth}
+\raggedright
+
+{\ttfamily\normalsize
+\textbf{(a) Before elimination}\par}
+
+\begin{lstlisting}[
+basicstyle=\ttfamily\normalsize,
+aboveskip=0pt,
+belowskip=0pt,
+columns=fullflexible,
+keepspaces=true,
+breaklines=false
+]
+1: x = add   i64 i, j
+2: t = trunc i64 x to i32
+3: s = sext  i32 t to i64
+4: m = mul   i64 s, -100
+5: v = and   i64 m, 255
+6: z = or    i64 s, -55
+\end{lstlisting}
+
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.46\linewidth}
+\raggedright
+
+{\ttfamily\normalsize
+\textbf{(b) Before elimination}\par}
+
+\begin{lstlisting}[
+basicstyle=\ttfamily\normalsize,
+aboveskip=0pt,
+belowskip=0pt,
+columns=fullflexible,
+keepspaces=true,
+breaklines=false
+]
+1: x = add   i64 i, j
+2: t = trunc i64 x to i32
+3: s = sext  i32 t to i64
+4: m = sub   i64 s, -100
+5: v = and   i64 m, 255
+6: z = or    i64 s, -55
+
+\end{lstlisting}
+
+\end{minipage}
+
+\vspace{1.0em}
+
+%==================== BOTTOM ROW ====================
+
+\begin{minipage}[t]{0.46\linewidth}
+\raggedright
+
+{\ttfamily\normalsize
+\textbf{(a) After elimination}\par}
+
+\begin{lstlisting}[
+basicstyle=\ttfamily\normalsize,
+aboveskip=0pt,
+belowskip=0pt,
+columns=fullflexible,
+keepspaces=true,
+breaklines=false
+]
+1: x = add   i64 i, j
+2: t = trunc i64 x to i32
+3: s = sext  i32 t to i64
+4: m = mul   i64 s, -100
+5: v = and   i64 m, 255
+6: z = or    i64 s, -55
+
+\end{lstlisting}
+
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.46\linewidth}
+\raggedright
+
+{\ttfamily\normalsize
+\textbf{(b) After elimination}\par}
+
+\begin{lstlisting}[
+basicstyle=\ttfamily\normalsize,
+aboveskip=0pt,
+belowskip=0pt,
+columns=fullflexible,
+keepspaces=true,
+breaklines=false
+]
+1: x = add   i64 i, j
+2: m = sub   i64 x, -100
+3: v = and   i64 m, 255
+4: z = or    i64 x, -55
+
+\end{lstlisting}
+
+\end{minipage}
+
+\end{minipage}
+\end{center}
+
+\refstepcounter{figure}\label{fig:figure9}
+
+\begin{center}
+\small\textbf{Figure~\thefigure.} Example of AnalyzeUSE.
+\end{center}
+
+\par\vspace{1.2em}

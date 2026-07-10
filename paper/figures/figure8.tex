@@ -1,0 +1,57 @@
+\par\vspace{1.2em}
+
+\begin{center}
+\begin{minipage}{0.52\textwidth}
+
+\begin{lstlisting}[
+basicstyle=\normalfont\fontsize{9.5pt}{11pt}\selectfont,
+aboveskip=0pt,
+belowskip=0pt,
+columns=fullflexible,
+keepspaces=true,
+breaklines=false
+]
+1: AnalyzeUSE(EXT, I) {
+2:   if (a flag of USE for I
+3:       has already been set)
+4:     return FALSE;
+5:
+6:   set a flag of USE for I;
+7:
+8:   switch(I) {
+9:   case 1:
+10:     /* The source operand of I does not require
+11:        type S */
+12:     return FALSE;
+13:
+14:   case 2:
+15:     /* Requirement of type S of source
+16:        operand of I is equal to that
+17:        of the destination operand of I*/
+18:
+19:     /* use DU-chain */
+20:     for (J in all instructions that use
+21:          the destination operand of I) {
+22:       if (AnalyzeUSE(EXT, J))
+23:         return TRUE;
+24:     }
+25:
+26:     return FALSE;
+27:   }
+28:
+29:   return TRUE;
+30: }
+\end{lstlisting}
+
+\end{minipage}
+\end{center}
+
+\vspace{0.8em}
+
+\refstepcounter{figure}\label{fig:figure8}
+
+\begin{center}
+\small\textbf{Figure~\thefigure.} The AnalyzeUSE algorithm.
+\end{center}
+
+\par\vspace{1.2em}

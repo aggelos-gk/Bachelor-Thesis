@@ -1,0 +1,29 @@
+\par\vspace{1.2em}
+
+\begin{center}
+{\normalfont\normalsize
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Benchmark & Original & Optimized & Pct Change \\
+\midrule
+consumer-jpeg & 6760463 & 6760931 & +0.0069\% \\
+basicmath & 143167792 & 143167803 & +0.0000077\% \\
+madplay & 25646601 & 25469129 & -0.692\% \\
+toast & 16394788 & 16394712 & -0.00046\% \\
+dijkstra & 33874230 & 33874247 & +0.00005\% \\
+\bottomrule
+\end{tabular}
+}
+\end{center}
+
+\vspace{0.12em}
+
+\refstepcounter{figure}\label{fig:figure17}
+
+\begin{center}
+\small\textbf{Figure~\thefigure.} Dynamic instruction counts for MiBench at O3.
+\end{center}
+
+\par\vspace{1.2em}

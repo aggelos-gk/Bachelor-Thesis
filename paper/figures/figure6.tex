@@ -1,0 +1,62 @@
+\par\medskip
+\begin{center}
+\begin{minipage}{1\textwidth}
+
+\noindent\begin{minipage}[t]{0.52\linewidth}
+\raggedright
+\textbf{Before elimination(Widened)}\\[0.15em]
+\begin{lstlisting}[basicstyle=\ttfamily\normalsize,aboveskip=0pt,belowskip=0pt]
+cold_BB:
+1: x     = add   i64 i , k
+2: y     = sub   i64 x , 255
+3: y.t   = trunc i64 y to i32
+4: y.s   = sext  i32 y.t to i64
+
+hot_BB:
+5: y.s.t = trunc i64 y.s to i32
+6: y.s.s = sext  i32 y.s.t to i64
+7: m     = mul   i32 y.s.s, 455
+
+\end{lstlisting}
+\end{minipage}
+
+\vspace{0.7em}
+
+\noindent\begin{minipage}[t]{0.48\linewidth}
+\raggedright
+\textbf{Optimized Result 1}\\[0.15em]
+\begin{lstlisting}[basicstyle=\ttfamily\normalsize,aboveskip=0pt,belowskip=0pt]
+cold_BB:
+1: x   = add   i64 i , k
+2: y   = sub   i64 x , 255
+3: y.t = trunc i64 y to i32
+4: y.s = sext  i32 y.t to i64
+
+hot_BB:
+5: m   = mul   i32 y.s, 455
+\end{lstlisting}
+\end{minipage}%
+\hfill%
+\begin{minipage}[t]{0.48\linewidth}
+\raggedright
+\textbf{Optimized Result 2}\\[0.15em]
+\begin{lstlisting}[basicstyle=\ttfamily\normalsize,aboveskip=0pt,belowskip=0pt]
+cold_BB:
+1: x     = add   i64 i , k
+2: y     = sub   i64 x , 255
+
+hot_BB:
+3: y.s.t = trunc i64 y to i32
+4: y.s.s = sext  i32 y.s.t to i64
+5: m     = mul   i32 y.s.s, 45
+\end{lstlisting}
+\end{minipage}
+
+\par\vspace{1.2em}
+\refstepcounter{figure}\label{fig:figure6}
+\noindent\makebox[\linewidth][c]{\normalfont\small\textbf{Figure~\thefigure.} Example requiring order determination}
+\par\vspace{0.6em}
+
+\end{minipage}
+\end{center}
+\par\medskip

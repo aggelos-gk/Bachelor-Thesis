@@ -1,0 +1,82 @@
+\begin{figure}[H]
+\centering
+
+\begin{minipage}{1\linewidth}
+
+\textbf{Original program}
+
+\begin{lstlisting}[
+  basicstyle=\ttfamily\normalsize,
+  columns=fullflexible,
+  keepspaces=true,
+  aboveskip=0.3em,
+  belowskip=0.8em
+]
+1: x = sub  i32 a, b
+2: y = add  i32 x, c
+3: s = sext i32 y to i64
+4: z = or   i64 s, -50
+5: t = and  i64 s, 214
+\end{lstlisting}
+
+\textbf{After widening}
+
+\medskip
+
+\noindent
+\begin{minipage}[t]{0.58\linewidth}
+\vspace{-0.4cm}
+\textnormal{(before elimination)}
+
+\begin{lstlisting}[
+  basicstyle=\ttfamily\normalsize,
+  columns=fullflexible,
+  keepspaces=true,
+  aboveskip=0.3em,
+  belowskip=0pt
+]
+ 1: x.w   = sub   i64 a.w, b.w
+ 2: x.t   = trunc i64 x.w to i32
+ 3: x.s   = sext  i32 x.t to i64
+ 4: y.w   = add   i64 x.s, c.w
+ 5: y.t   = trunc i64 y.w to i32
+ 6: y.s   = sext  i32 y.t to i64
+ 7: y.s.t = trunc i64 y.s to i32
+ 8: s     = sext  i32 y.t to i64
+ 9: z     = or    i64 s, -50
+10: t     = and   i64 s, 214
+\end{lstlisting}
+\end{minipage}%
+\hspace{0cm}
+\begin{minipage}[t]{0.36\linewidth}
+\vspace{-0.4cm}
+\textnormal{(after elimination)}
+
+\begin{lstlisting}[
+  basicstyle=\ttfamily\normalsize,
+  columns=fullflexible,
+  keepspaces=true,
+  aboveskip=0.3em,
+  belowskip=0pt
+]
+1: x.w = sub i64 a.w, b.w
+2: y.w = add i64 x.w, c.w
+3: z   = or  i64 y.w, -50
+4: t   = and i64 y.w, 214
+\end{lstlisting}
+\end{minipage}
+
+\end{minipage}
+
+\vspace{1.2em}
+
+\captionsetup{
+  font=small,
+  justification=centering,
+  singlelinecheck=false,
+  skip=0pt
+}
+\caption{Example of widening followed by sign-extension elimination.}
+\label{fig:figure3}
+
+\end{figure}
